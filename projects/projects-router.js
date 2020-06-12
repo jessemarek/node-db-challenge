@@ -126,4 +126,22 @@ router.get('/tasks', (req, res) => {
         })
 })
 
+//Delete a project
+router.delete('/:id', (req, res) => {
+    const { id } = req.params
+
+    Projects.remove(id)
+        .then(project => {
+            if (project) {
+                res.status(200).json(project)
+            }
+            else {
+                res.status(404).json({ message: "Project not found" })
+            }
+        })
+        .catch(error => {
+            res.status(500).json({ message: error.message })
+        })
+})
+
 module.exports = router

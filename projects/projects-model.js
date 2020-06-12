@@ -8,7 +8,8 @@ module.exports = {
     findById,
     findResources,
     findTasks,
-    getProject
+    getProject,
+    remove
 }
 
 function add(project) {
@@ -30,8 +31,10 @@ function addResource(resource) {
         .then(([id]) => findResourceById(id))
 }
 
-function find() {
-    return db('projects')
+async function find() {
+    const projects = await db('projects')
+    return projects.map(p => p.completed ? { ...p, completed: true } : { ...p, completed: false })
+
 }
 
 function findById(id) {
@@ -90,4 +93,20 @@ async function getProject(id) {
         tasks,
         resources
     }
+}
+
+async function remove(id) {
+    const project = await findById(id)
+
+    db('projects')
+        .where('id', id)
+        .del()
+        .then(count => {
+            if (count) {
+                return project
+            }
+            else {
+                return count
+            }
+        })
 }

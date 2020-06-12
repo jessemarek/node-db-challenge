@@ -34,7 +34,7 @@ exports.up = function (knex) {
             tbl.integer('project_id')
                 .unsigned()
                 .references('projects.id')
-                .onDelete('RESTRICT')
+                .onDelete('CASCADE')
                 .onUpdate('CASCADE')
         })
 
@@ -59,14 +59,14 @@ exports.up = function (knex) {
             tbl.integer('project_id')
                 .unsigned()
                 .references('projects.id')
-                .onDelete('RESTRICT')
+                .onDelete('CASCADE')
                 .onUpdate('CASCADE')
 
             //Foreign Key
             tbl.integer('resource_id')
                 .unsigned()
                 .references('resources.id')
-                .onDelete('RESTRICT')
+                .onDelete('CASCADE')
                 .onUpdate('CASCADE')
         })
 };
