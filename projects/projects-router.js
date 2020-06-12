@@ -29,9 +29,12 @@ router.post('/', (req, res) => {
 
 //Add a new task to a project
 router.post('/:id/tasks', (req, res) => {
+    const { id } = req.params
     const task = req.body
 
-    if (task.description && task.project_id) {
+    if (task.description) {
+        task.project_id = id
+
         Projects.addTask(task)
             .then(task => {
                 if (task) {
