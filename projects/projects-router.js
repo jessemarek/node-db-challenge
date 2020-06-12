@@ -50,6 +50,32 @@ router.post('/:id/tasks', (req, res) => {
     }
 })
 
+//Add a new resource to the project
+router.post('/:id/resources', (req, res) => {
+    const { id } = req.params
+    const resource = req.body
+
+    if (resource.resource_id) {
+        resource.project_id = id
+
+        Projects.addResource(resource)
+            .then(resource => {
+                if (resource) {
+                    res.status(201).json(resource)
+                }
+                else {
+                    res.status(404).json({ message: "The resource could not be found" })
+                }
+            })
+            .catch(error => {
+                res.status(500).json({ message: error.message })
+            })
+    }
+    else {
+        res.status(400).json({ message: "Bad Request: please provide a project_id and resource_id" })
+    }
+})
+
 //Get a list of projects
 router.get('/', (req, res) => {
     Projects.find()
@@ -59,6 +85,24 @@ router.get('/', (req, res) => {
             }
             else {
                 res.status(404).json({ message: "No projects found" })
+            }
+        })
+        .catch(error => {
+            res.status(500).json({ message: error.message })
+        })
+})
+
+//Get project by ID
+router.get('/:id', (req, res) => {
+    const { id } = req.params
+
+    Projects.getProject(id)
+        .then(project => {
+            if (project) {
+                res.status(200).json(project)
+            }
+            else {
+                res.status(404).json({ message: "Project with that Id not found" })
             }
         })
         .catch(error => {

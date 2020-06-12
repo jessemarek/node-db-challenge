@@ -3,9 +3,12 @@ const db = require('../data/db-config')
 module.exports = {
     add,
     addTask,
+    addResource,
     find,
     findById,
-    findTasks
+    findResources,
+    findTasks,
+    getProject
 }
 
 function add(project) {
@@ -19,6 +22,12 @@ function addTask(task) {
         .insert(task)
         .then(([id]) => findTaskById(id))
 
+}
+
+function addResource(resource) {
+    return db('project_resources as pr')
+        .insert(resource)
+        .then(([id]) => findResourceById(id))
 }
 
 function find() {
@@ -41,4 +50,44 @@ function findTaskById(id) {
     return db('tasks')
         .where('id', id)
         .first()
+}
+
+function findResources(id) {
+    return db('project_resources as pr')
+        .where('pr.project_id', id)
+        .join('projects as p', 'pr.project_id', 'p.id')
+        .join('resources as r', 'pr.resource_id', 'r.id')
+        .select('pr.id', 'p.name', 'r.name')
+}
+
+function findResourceById(id) {
+    return db('project_resources as pr')
+        .where('pr.id', id)
+        .first()
+}
+
+async function getProject(id) {
+    const project = await db('projects')
+        .where('id', id)
+        .first()
+
+    const resources = await db('project_resources as pr')
+        .where('pr.project_id', id)
+        .join('resources as r', 'pr.resource_id', 'r.id')
+        .select('r.id', 'r.name', 'r.description')
+
+    const tasks = await db('tasks as t')
+        .where('t.project_id', id)
+        .select('t.id', 't.description', 't.notes', 't.completed')
+
+    tasks.map(t => t.completed ? (t.completed = true) : (t.completed = false))
+
+    return {
+        id: project.id,
+        name: project.name,
+        description: project.description,
+        completed: project.completed ? true : false,
+        tasks,
+        resources
+    }
 }
